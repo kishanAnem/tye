@@ -147,7 +147,8 @@ namespace Microsoft.Tye.ConfigModel
                         // that were generated when the project was created, and so they will almost always conflict
                         // between multiple apps.
                         AutoAssignPort = true,
-                        Protocol = uri.Scheme
+                        Protocol = uri.Scheme,
+                        Name = uri.Scheme == "http" ? null : uri.Scheme,
                     });
                 }
             }

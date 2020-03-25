@@ -17,7 +17,7 @@ namespace Microsoft.Tye.ConfigModel
             {
                 RunInfo? runInfo;
                 int replicas;
-                var env = new List<ConfigurationSource>();
+                var env = new List<EnvironmentVariable>();
                 if (service is ExternalServiceBuilder)
                 {
                     runInfo = null;
@@ -37,7 +37,7 @@ namespace Microsoft.Tye.ConfigModel
 
                     foreach (var entry in container.EnvironmentVariables)
                     {
-                        env.Add(new ConfigurationSource(entry.Name, entry.Value));
+                        env.Add(entry.ToHostingEnvironmentVariable());
                     }
                 }
                 else if (service is ExecutableServiceBuilder executable)
@@ -47,7 +47,7 @@ namespace Microsoft.Tye.ConfigModel
 
                     foreach (var entry in executable.EnvironmentVariables)
                     {
-                        env.Add(new ConfigurationSource(entry.Name, entry.Value));
+                        env.Add(entry.ToHostingEnvironmentVariable());
                     }
                 }
                 else if (service is ProjectServiceBuilder project)
@@ -64,7 +64,7 @@ namespace Microsoft.Tye.ConfigModel
 
                     foreach (var entry in project.EnvironmentVariables)
                     {
-                        env.Add(new ConfigurationSource(entry.Name, entry.Value));
+                        env.Add(entry.ToHostingEnvironmentVariable());
                     }
                 }
                 else
@@ -127,6 +127,19 @@ namespace Microsoft.Tye.ConfigModel
             }
 
             return new Tye.Hosting.Model.Application(application.Source, services);
+        }
+
+        public static Tye.Hosting.Model.EnvironmentVariable ToHostingEnvironmentVariable(this EnvironmentVariableBuilder builder)
+        {
+            var env = new Tye.Hosting.Model.EnvironmentVariable(builder.Name);
+            env.Value = builder.Value;
+            if (builder.Source != null)
+            {
+                env.Source = new Tye.Hosting.Model.EnvironmentVariableSource(builder.Source.Service, builder.Source.Binding);
+                env.Source.Kind = (Tye.Hosting.Model.EnvironmentVariableSource.SourceKind)(int)builder.Source.Kind;
+            }
+
+            return env;
         }
     }
 }

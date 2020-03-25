@@ -34,7 +34,7 @@ namespace Microsoft.Tye
         // Data used for building containers
         public ContainerInfo? ContainerInfo { get; set; }
 
-        public List<EnvironmentVariable> EnvironmentVariables { get; } = new List<EnvironmentVariable>();
+        public List<EnvironmentVariableBuilder> EnvironmentVariables { get; } = new List<EnvironmentVariableBuilder>();
 
         // Used when running in a container locally.
         public List<VolumeBuilder> Volumes { get; } = new List<VolumeBuilder>();

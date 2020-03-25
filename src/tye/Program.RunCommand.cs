@@ -8,6 +8,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading;
 using Microsoft.Tye.ConfigModel;
+using Microsoft.Tye.Extensions;
 using Microsoft.Tye.Hosting;
 
 namespace Microsoft.Tye
@@ -72,9 +73,19 @@ namespace Microsoft.Tye
 
                 var output = new OutputContext(console, Verbosity.Quiet);
                 var application = await ApplicationFactory.CreateAsync(output, path);
-                var serviceCount = application.Services.Count;
 
-                InitializeThreadPoolSettings(serviceCount);
+                foreach (var extensionConfig in application.Extensions)
+                {
+                    if (!WellKnownExtensions.Extensions.TryGetValue(extensionConfig.Name, out var extension))
+                    {
+                        throw new CommandException($"Could not find the extension '{extensionConfig.Name}'.");
+                    }
+
+                    var context = new ExtensionContext(application, ExtensionContext.OperationKind.LocalRun);
+                    await extension.ProcessAsync(context, extensionConfig);
+                }
+
+                InitializeThreadPoolSettings(application.Services.Count);
 
                 using var host = new TyeHost(application.ToHostingApplication(), args, debug);
                 await host.RunAsync();
