@@ -37,7 +37,20 @@ namespace Microsoft.Tye
             }
         }
 
-        static FileInfo TryParsePath(ArgumentResult result, bool required)
+        public static Argument<FileInfo> Path_ForCompose
+        {
+            get
+            {
+                return new Argument<FileInfo>((r) => TryParsePath(r, required: false, isForCompose: true), isDefault: true)
+                {
+                    Arity = ArgumentArity.ZeroOrOne,
+                    Description = "file or directory, can be a docker-compose.yaml or docker-compose.yml",
+                    Name = "path",
+                };
+            }
+        }
+
+        static FileInfo TryParsePath(ArgumentResult result, bool required, bool isForCompose = false)
         {
             var token = result.Tokens.Count switch
             {
@@ -72,6 +85,9 @@ namespace Microsoft.Tye
                     return default!;
                 }
             }
+
+            
+
 
             result.ErrorMessage = $"The file '{token}' could not be found.";
             return default!;

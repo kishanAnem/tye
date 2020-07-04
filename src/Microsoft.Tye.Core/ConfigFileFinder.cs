@@ -9,10 +9,12 @@ namespace Microsoft.Tye
     public class ConfigFileFinder
     {
         private static readonly string[] FileFormats = new[] { "tye.yaml", "tye.yml", "*.csproj", "*.fsproj", "*.sln" };
+        private static readonly string[] dockerComposeFormats = new[] { "docker-compose.yaml", "docker-compose.yml" };
 
-        public static bool TryFindSupportedFile(string directoryPath, out string? filePath, out string? errorMessage)
+        public static bool TryFindSupportedFile(string directoryPath, out string? filePath, out string? errorMessage, bool isForCompose = false)
         {
-            foreach (var format in FileFormats)
+            var fileFormats = isForCompose ? dockerComposeFormats : FileFormats;
+            foreach (var format in fileFormats)
             {
                 var files = Directory.GetFiles(directoryPath, format);
 
